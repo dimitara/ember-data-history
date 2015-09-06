@@ -1,5 +1,10 @@
 # ember-data-history
-Example app that tracks changes on an ember model record, its attributes and relationships
+
+Example app that tracks changes on an ember model record, its attributes and relationships.
+
+
+
+# Installation
 
 This README outlines the details of collaborating on this Ember application.
 A short introduction of this app could easily go here.
