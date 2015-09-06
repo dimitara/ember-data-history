@@ -1,10 +1,9 @@
-# ember-data-history
+# Ember Data History
 
-Example app that tracks changes on an ember model record, its attributes and relationships.
+The purpose of this app is to demonstrate how to use Ember Data with data history tracking to allow generic app level undo/redo actions.
+The demo contains sample models with relationships that are extended by a state mixin. The state mixin takes care of observing model properties and notifying a service called history. The history service is responsible for stacking data changes in its own stack and reverting these changes when needed.
 
-
-
-# Installation
+# Emberjs Installation
 
 This README outlines the details of collaborating on this Ember application.
 A short introduction of this app could easily go here.
