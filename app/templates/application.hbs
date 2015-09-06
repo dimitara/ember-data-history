@@ -1,3 +1,54 @@
-<h2 id="title">Welcome to Ember.js</h2>
-
-{{outlet}}
+<div class="word-column">
+    <h3>words</h3>
+    <ul>
+    {{#each word in words}}
+        <li {{action 'select' word}} class="{{if word.isSelected 'selected'}}">
+            {{word.word}}
+        </li>
+    {{/each}}
+    </ul>
+</div>
+<div class="word-edit-column">
+{{#if selectedWord}}
+    <h3>
+        {{#if selectedWord.isEditMode}}
+        {{input value=selectedWord.word}}
+        <button {{action 'cancelWord'}}>✕</button>
+        <button {{action 'saveWord'}}>✓</button>
+        {{else}}
+        {{selectedWord.word}}
+        <button {{action 'deleteWord'}}>⌫</button>
+        <button {{action 'editWord'}}>✎</button>
+        {{/if}}
+    </h3>
+    <form {{action 'submitWord' on="submit"}}>
+        <div class="meanings">
+            <em>meanings ({{selectedWord.meanings.length}})</em>
+            <ul>
+                {{#each meaning in selectedWord.meanings}}
+                    <li>
+                        {{#if meaning.isEditMode}}
+                            <button {{action 'saveMeaning' meaning}}>✓</button>
+                            <button {{action 'cancelMeaning' meaning}}>✕</button>
+                            {{input value=meaning.text}}
+                        {{else}}
+                            <button {{action 'editMeaning' meaning}}>✎</button>
+                            <button {{action 'deleteMeaning' meaning}}>⌫</button>
+                            {{meaning.text}}
+                        {{/if}}
+                    </li>
+                {{/each}}
+            </ul>
+            <button {{action 'addMeaning'}}>Add Meaning</button>
+        </div>
+        <div class="submit">
+            <button class="cancel" {{action 'undo'}}>Undo</button>
+            <!--<button class="cancel" {{action 'redo'}}>Redo</button>-->
+            <button class="cancel" {{action 'cancelSubmit'}}>Cancel</button>
+            <button>Save</button>
+        </div>
+    </form>
+{{else}}
+    <h4>Select a word to continue</h4>
+{{/if}}
+</div>

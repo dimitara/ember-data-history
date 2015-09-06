@@ -1,0 +1,113 @@
+@import url(https://fonts.googleapis.com/css?family=PT+Mono);
+
+body{
+    margin:0;
+    padding:0;
+    font-family: 'PT Mono';
+}
+h3{
+    padding:10px;
+    margin:0 0 10px 0;
+    background:rgb(14,47,62);
+    font-weight:lighter;
+    color:rgb(255,255,255);
+    font-size:18px;
+}
+
+h4{
+    font-size:16px;
+    font-weight:lighter;
+    color:rgb(14,47,62);
+    margin:15px 0 0 10px;
+}
+.meanings em{
+    font-size:14px;
+    color:rgb(14,47,62);
+    margin:10px 0;
+    display:block;
+    text-align:right;
+}
+
+.word-column{
+    width:200px;
+    display:inline-block;
+    vertical-align: top;
+    font-size:0;
+}
+
+.word-edit-column{
+    width:400px;
+    display:inline-block;   
+    vertical-align: top;
+    font-size:0;
+}
+
+.word-edit-column form{
+    margin:10px;
+}
+
+.word-column ul{
+    list-style:none;
+    padding:10px;
+    margin:0;
+}
+
+.word-column li{
+    color:rgb(14,47,62);
+    font-size:16px;
+    padding:5px;
+}
+
+.word-column li.selected{
+    background:rgba(14,47,62,0.1);
+}
+
+.meanings{
+    font-size:16px;
+}
+
+.meanings ul{
+    list-style:none;
+    margin:0;
+    padding:0;
+    margin-bottom:20px;
+}
+
+.meanings li{
+    margin-bottom:10px;
+}
+
+.meanings button, h3 button{
+    border:solid 1px #a0cb00; 
+    background:#fff;
+    min-width:25px;
+    display:inline-block;
+}
+
+h3 button{
+    float:right;
+}
+
+.meanings input{
+    width:300px;
+}
+
+.submit{
+    text-align:right;
+    border-top:solid 1px #a0cb00;
+    margin:20px 0 0 0;
+    padding: 10px 0 0 0;
+}
+
+.submit button{
+    background:#a0cb00;
+    padding:5px 10px;
+    border:none;
+    font-size:14px;
+    color:rgb(14,47,62);
+}
+
+.submit button.cancel{
+    background:rgba(14,47,62, 0.1);
+    margin-right:10px;
+}
