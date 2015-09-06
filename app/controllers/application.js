@@ -49,7 +49,8 @@ export default Ember.Controller.extend({
             meaning.set('isEditMode', false);
         },
         cancelMeaning: function(meaning){
-            //TODO: revert
+            this.get('history').undo(meaning);
+            
             meaning.set('isEditMode', false);
         },
         undo: function(){

@@ -43,18 +43,32 @@ export default Ember.Service.extend({
         while(this.undo()){
         }
     },
-    undo: function(){
+    undo: function(record){
         var stack = this.get('stack');
 
-        var lastObjectState = stack.get('lastObject');
-        
-        if(!lastObjectState) {
-            return false;
+        if(Ember.isPresent(record)){
+            var changes = stack.filter(stackItem => {
+                return stackItem.model === record;
+            });
+
+            var lastObject = changes.get('lastObject');
+            if(!lastObject) return false;
+            
+            lastObject.model.restore(lastObject);
+
+            stack.removeObject(lastObject);
         }
+        else{
+            var lastObjectState = stack.get('lastObject');
+            
+            if(!lastObjectState) {
+                return false;
+            }
 
-        lastObjectState.model.restore(lastObjectState);
-        stack.removeObject(lastObjectState);
+            lastObjectState.model.restore(lastObjectState);
+            stack.removeObject(lastObjectState);
 
-        return true;
+            return true;
+        }
     }
 });
