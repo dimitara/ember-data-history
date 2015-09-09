@@ -31,10 +31,12 @@
                             <button {{action 'saveMeaning' meaning}}>✓</button>
                             <button {{action 'cancelMeaning' meaning}}>✕</button>
                             {{input value=meaning.text}}
+                            {{input value=meaning.order}}
                         {{else}}
                             <button {{action 'editMeaning' meaning}}>✎</button>
                             <button {{action 'deleteMeaning' meaning}}>⌫</button>
                             {{meaning.text}}
+                            {{meaning.order}}
                         {{/if}}
                     </li>
                 {{/each}}

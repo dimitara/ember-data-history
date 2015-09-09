@@ -3,7 +3,11 @@ import state from "../mixins/state";
 
 var Meaning = DS.Model.extend(state, {
     text: DS.attr('string', {
+        group: "order&text",
         sackable: true
+    }),
+    order: DS.attr('number', {
+        group: "order&text",
     }),
     added: DS.attr('date', {
         stateless:true
