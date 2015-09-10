@@ -2,7 +2,9 @@ import DS from 'ember-data';
 import state from "../mixins/state";
 
 var Meaning = DS.Model.extend(state, {
-    text: DS.attr('string'),
+    text: DS.attr('string', {
+        sackable: true
+    }),
     added: DS.attr('date', {
         stateless:true
     }),
@@ -10,7 +12,7 @@ var Meaning = DS.Model.extend(state, {
     meta: DS.attr('string'),
 
     word: DS.belongsTo('word', {
-        stateless:true
+        stateless: true
     })  
 });
 

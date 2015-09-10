@@ -3,7 +3,9 @@ import Ember from 'ember';
 export default Ember.Mixin.create({
     modelReady: false,
     history: Ember.inject.service('history'),
+    states: Ember.A([]),
     track: function(){
+        this.set('states', Ember.A([]));
         this.set('modelReady', true);
 
         this.eachAttribute((name, meta) => {
@@ -45,13 +47,23 @@ export default Ember.Mixin.create({
         }
         
         if(changedAttr[key]){ 
-            this.get('history').push({
+            var stackable = meta.options && meta.options.sackable;
+            var historyLastModel = this.get('history.stack.lastObject');
+            var state = {
                 key: key, 
                 type: 'attr',
                 change: this.get(key),
-                value: changedAttr[key][0],
                 model: this
-            });    
+            };
+
+
+            if (stackable && historyLastModel == this) {
+                state.value = this.getPrevStateChange(key) || changedAttr[key][0],
+                this.updateLastState(state);
+            }else {
+                state.value = this.getLastStateChange(key) || changedAttr[key][0],
+                this.saveState(state);    
+            }
         }
 
         if(meta.kind === 'hasMany'){
@@ -60,7 +72,7 @@ export default Ember.Mixin.create({
             });
 
             if(items.length > 0){
-                this.get('history').push({
+                this.saveState({
                     key: key,
                     type: 'hasMany',
                     change: items.get('firstObject'),
@@ -87,7 +99,9 @@ export default Ember.Mixin.create({
     },
 
     removeObserver: function(key, child){
-        this.get('history').push({
+        this.get('history').push(this);
+
+        this.saveState({
             key: key,
             type: 'remove:hasMany',
             change: child,
@@ -99,7 +113,7 @@ export default Ember.Mixin.create({
         record.set('isRemoved', true);
         this.get(record.constructor.typeKey + 's').removeObject(record);
 
-        this.get('history').push({
+        this.get('states').pushObject({
             key: record.constructor.typeKey + 's',
             type: 'remove:hasMany',
             change: record,
@@ -107,7 +121,80 @@ export default Ember.Mixin.create({
         });
     },
 
-    restore: function(state){
+    updateLastState: function(state){
+        var lastState = this.get('states.lastObject');
+
+        if (state.change === state.value) {
+            //the value will be the same if ww set it from restore
+            return;
+        }
+
+        if (lastState && lastState.key === state.key && lastState.type !== 'hasMany' && lastState.type !== 'remove:hasMany') {
+            lastState.change = state.change;
+            lastState.value = state.value;
+            return true;
+        }
+        this.saveState(state);
+    },
+
+    getLastStateChange: function(key){
+        var state = null;
+        var len = this.get('states.length');
+
+        while(len--){
+            state = this.get('states').get(len);
+            if (state.key === key) {
+                return state.change;
+            }
+        }
+    },
+
+    getPrevStateChange: function(key){
+        var state = null;
+        var find = false;
+        var len = this.get('states.length');
+
+        while(len--){
+            state = this.get('states').get(len);
+            if (state.key === key) {
+                if (find == true){
+                    return state.change;
+                }
+                find = true;
+            }
+        }
+    },
+
+    saveState: function(state){
+        if (state.change === state.value) {
+            //the value will be the same if ww set it from restore
+            return;
+        }
+        this.get('history').push(this);
+        this.get('states').pushObject(state);
+        console.log('States', this.get('states'));
+    },
+
+    restore: function(states){
+        var states = states || this.get('states');
+        var state = states.popObject();
+
+        if (!state) {
+            return false;
+        }
+
+        if (Ember.isArray(state)) {
+            while(this.restore(state)){
+                //do nothing
+            }
+        }else {
+            this.restoreFromState(state);
+        }
+        console.log('After Restore', states);
+        return true;
+    },
+
+    restoreFromState: function(state){
         if(state.type !== 'hasMany' && state.type !== 'remove:hasMany'){
             this.set(state.key, state.value);
         }
