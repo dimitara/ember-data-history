@@ -4,9 +4,11 @@ export default Ember.Mixin.create({
     modelReady: false,
     history: Ember.inject.service('history'),
     states: Ember.A([]),
+    isGroupClosed: false,
     track: function(){
         this.set('states', Ember.A([]));
         this.set('modelReady', true);
+        this.set('isGroupClosed', false);
 
         this.eachAttribute((name, meta) => {
             if(meta.options.stateless === true) return ;
@@ -47,8 +49,10 @@ export default Ember.Mixin.create({
         }
         
         if(changedAttr[key]){ 
+            var groupName = meta.options && meta.options.group;
             var stackable = meta.options && meta.options.sackable;
             var historyLastModel = this.get('history.stack.lastObject');
+
             var state = {
                 key: key, 
                 type: 'attr',
@@ -56,13 +60,59 @@ export default Ember.Mixin.create({
                 model: this
             };
 
+            /*
+            {
+                key: key,
+                type: 'group',
+                change: {
+                    text: {
+                        key: key,
+                        type: 'attr',
+                        change: "asdasdas",
+                        model: this,
+                        value: ""
+                    },
+                    order: {
+                        key: key,
+                        type: 'attr',
+                        change: 2,
+                        model: this,
+                        value: 0
+                    }
+                },
+                value: {
+                    order: {
+                        key: key,
+                        type: 'attr',
+                        change: 0,
+                        model: this,
+                        value: 0
+                    }
+                }
+            }
+            */
 
-            if (stackable && historyLastModel == this) {
-                state.value = this.getPrevStateChange(key) || changedAttr[key][0],
-                this.updateLastState(state);
+            if ((stackable || (groupName && !this.get('isGroupClosed'))) && historyLastModel == this) {
+                //if this is the current model in history update the records and get the prev one as history back value
+                var prevState = this.getPrevState(key);
+                if (groupName) {
+                    this.updateLastGroup(state, groupName);
+                }else {
+                    //if we recording in this last state get the prev one as base value
+                    state.value = (prevState && prevState.change) || changedAttr[key][0],
+                    this.updateLastState(state);
+                }
             }else {
-                state.value = this.getLastStateChange(key) || changedAttr[key][0],
-                this.saveState(state);    
+                this.set('isGroupClosed', false);
+                //if the current model in history is diffarent or property isn`t stackable or grouped add new record in stack
+                var lastState = this.getLastState(key)
+                if (groupName) {
+                    this.saveGroup(state, groupName);
+                }else {
+                    //set value based on prev record
+                    state.value = (lastState && lastState.change) || changedAttr[key][0],
+                    this.saveState(state);    
+                }
             }
         }
 
@@ -121,6 +171,79 @@ export default Ember.Mixin.create({
         });
     },
 
+    updateLastGroup: function(state, groupName){
+        var key = state.key;
+        var prevGroup = this.getPrevState(groupName);
+        var lastGroup = this.getLastState(groupName);
+        var changedAttr = this.changedAttributes();
+        var group = {
+            key: groupName,
+            type: 'group',
+            model: this,
+            value: {}
+        };
+
+
+        //if we update the group and we have already recorded group in states use it as base value
+        if (prevGroup && prevGroup.type === "group" && prevGroup.key === groupName) {
+            //set base values
+            state.value = (prevGroup.value[key] && prevGroup.value[key].change) || changedAttr[key][0];
+        }else {
+            state.value = changedAttr[key][0];
+        }
+
+        //if we have recorded group just update it
+        if (lastGroup && lastGroup.type === "group" && lastGroup.key === groupName){
+            if (lastGroup.value[key]) {
+                lastGroup.value[key].value = state.value;
+                lastGroup.value[key].change = state.change;
+
+                this.updateLastState(lastGroup);
+            }else {
+                lastGroup.value[key] = state;
+                this.updateLastState(lastGroup);
+            }
+        }else {
+            state.value = changedAttr[key][0];
+            group.value[key] = state;
+            this.saveState(group);
+        }
+    },
+
+    saveGroup: function(state, groupName){
+        var key = state.key;
+        var lastGroup = this.getLastState(groupName);
+        var changedAttr = this.changedAttributes();
+        var group = {
+            key: groupName,
+            type: 'group',
+            model: this,
+            value: {}
+        };
+
+
+        //if we have recorded group off this type get changes as base value
+        if (lastGroup && lastGroup.type === "group" && lastGroup.key === groupName) {
+            state.value = (lastGroup.value[key] && lastGroup.value[key].change) || changedAttr[key][0];
+            if (state.change === state.value) {
+                return;
+            }
+            group.value[key] = state;
+            this.saveState(group);
+        }else {
+            state.value = changedAttr[key][0];
+            if (state.change === state.value) {
+                return;
+            }
+            group.value[key] = state;
+            this.saveState(group);
+        }
+    },
+
+    closeGroup: function(){
+        this.set('isGroupClosed', true);
+    },
+
     updateLastState: function(state){
         var lastState = this.get('states.lastObject');
 
@@ -137,19 +260,19 @@ export default Ember.Mixin.create({
         this.saveState(state);
     },
 
-    getLastStateChange: function(key){
+    getLastState: function(key){
         var state = null;
         var len = this.get('states.length');
 
         while(len--){
             state = this.get('states').get(len);
             if (state.key === key) {
-                return state.change;
+                return state;
             }
         }
     },
 
-    getPrevStateChange: function(key){
+    getPrevState: function(key){
         var state = null;
         var find = false;
         var len = this.get('states.length');
@@ -158,7 +281,7 @@ export default Ember.Mixin.create({
             state = this.get('states').get(len);
             if (state.key === key) {
                 if (find == true){
-                    return state.change;
+                    return state;
                 }
                 find = true;
             }
@@ -172,7 +295,8 @@ export default Ember.Mixin.create({
         }
         this.get('history').push(this);
         this.get('states').pushObject(state);
-        console.log('States', this.get('states'));
+        console.error('States', this.get('states'));
+        console.error('History', this.get('history'));
     },
 
     restore: function(states){
@@ -196,7 +320,17 @@ export default Ember.Mixin.create({
 
     restoreFromState: function(state){
         if(state.type !== 'hasMany' && state.type !== 'remove:hasMany'){
-            this.set(state.key, state.value);
+            if (state.type === "group") {
+                if (state.value) {
+                    for (var key in state.value) {
+                        if (Object.prototype.hasOwnProperty.call(state.value, key)) {
+                            this.set(state.value[key].key, state.value[key].value);
+                        }
+                    }
+                }
+            }else {
+                this.set(state.key, state.value);
+            }
         }
         else{
             if(state.type === 'remove:hasMany'){
