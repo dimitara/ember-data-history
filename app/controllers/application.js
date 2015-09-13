@@ -13,6 +13,7 @@ export default Ember.Controller.extend({
         select: function(word){
             this.get('words').setEach('isSelected', false);
             this.set('selectedWord', word);
+            this.set('selectedMeaningWord', word.get('id'));
             if(word){
                 word.set('isSelected', true);
                 this.get('history').init(word);
@@ -46,6 +47,19 @@ export default Ember.Controller.extend({
             this.get('selectedWord').set('isEditMode', false);
         },
         saveMeaning: function(meaning){
+            //meaning.get('word.meanings').removeObject(meaning);
+            //this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject')
+            if(this.get('selectedMeaningWord') !== meaning.get('word')){
+                this.store.createRecord('meaning', {
+                    id: null,
+                    text: meaning.get('text'),
+                    word: this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject'),
+                    isEditMode: false
+                });
+                
+                this.send('deleteMeaning', meaning);
+            }
+            
             meaning.set('isEditMode', false);
         },
         cancelMeaning: function(meaning){

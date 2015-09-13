@@ -11,7 +11,7 @@ export default Ember.Mixin.create({
         this.set('isGroupClosed', false);
 
         this.eachAttribute((name, meta) => {
-            if(meta.options.stateless === true) return ;
+            if(meta.options.stateless === true || name === "isRemoved") return ;
             this.addObserver(name, () => {
                 this.propObserver(name, meta);
             });
@@ -50,7 +50,7 @@ export default Ember.Mixin.create({
         
         if(changedAttr[key]){ 
             var groupName = meta.options && meta.options.group;
-            var stackable = meta.options && meta.options.sackable;
+            var stackable = meta.options && meta.options.stackable;
             var historyLastModel = this.get('history.stack.lastObject');
 
             var state = {
@@ -59,38 +59,6 @@ export default Ember.Mixin.create({
                 change: this.get(key),
                 model: this
             };
-
-            /*
-            {
-                key: key,
-                type: 'group',
-                change: {
-                    text: {
-                        key: key,
-                        type: 'attr',
-                        change: "asdasdas",
-                        model: this,
-                        value: ""
-                    },
-                    order: {
-                        key: key,
-                        type: 'attr',
-                        change: 2,
-                        model: this,
-                        value: 0
-                    }
-                },
-                value: {
-                    order: {
-                        key: key,
-                        type: 'attr',
-                        change: 0,
-                        model: this,
-                        value: 0
-                    }
-                }
-            }
-            */
 
             if ((stackable || (groupName && !this.get('isGroupClosed'))) && historyLastModel == this) {
                 //if this is the current model in history update the records and get the prev one as history back value
@@ -163,12 +131,16 @@ export default Ember.Mixin.create({
         record.set('isRemoved', true);
         this.get(record.constructor.typeKey + 's').removeObject(record);
 
-        this.get('states').pushObject({
+        this.saveState({
             key: record.constructor.typeKey + 's',
             type: 'remove:hasMany',
             change: record,
             model: this
         });
+
+        //this.get('states').pushObject();
+
+        console.log('states', this.get('states'));
     },
 
     updateLastGroup: function(state, groupName){
@@ -302,7 +274,7 @@ export default Ember.Mixin.create({
     restore: function(states){
         var states = states || this.get('states');
         var state = states.popObject();
-
+        console.log('www', state);
         if (!state) {
             return false;
         }
@@ -319,6 +291,7 @@ export default Ember.Mixin.create({
     },
 
     restoreFromState: function(state){
+        console.log('restore from state');
         if(state.type !== 'hasMany' && state.type !== 'remove:hasMany'){
             if (state.type === "group") {
                 if (state.value) {
@@ -334,11 +307,13 @@ export default Ember.Mixin.create({
         }
         else{
             if(state.type === 'remove:hasMany'){
+                console.log('www');
                 state.change.set('isRemoved', false);
                 state.change.set('isAdded', true);
                 this.get(state.key).addObject(state.change);
             }
             else{
+                state.change.set('isRemoved', true);
                 this.get(state.key).removeObject(state.change);
             }
         }

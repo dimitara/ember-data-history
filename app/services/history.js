@@ -1,9 +1,9 @@
 import Ember from 'ember';
 
-var {computed} = Ember;
+var {computed, A} = Ember;
 
 export default Ember.Service.extend({
-    stack: Ember.A([]),
+    stack: A([]),
     init: function(model){
         this.clearAll();
         if(model) {
@@ -14,9 +14,10 @@ export default Ember.Service.extend({
         return this.get('stack.length') === 0;
     }),
     clearAll: function(){
-        this.set('stack', Ember.A([]));
+        this.set('stack', A([]));
     },
     push: function(model){
+        console.log('push stack', model);
         this.get('stack').pushObject(model);
     },
     undoAll: function(){
@@ -28,7 +29,7 @@ export default Ember.Service.extend({
     },
     undo: function(record){
         var model = this.get('stack').popObject();
-
+        console.log('model', model);
         if(model) {
             model.restore();
             return true;

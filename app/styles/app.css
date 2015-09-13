@@ -77,6 +77,22 @@ h4{
     margin-bottom:10px;
 }
 
+.meanings li span{
+    display:inline-block;
+    width:305px;
+}
+
+.meanings li span input{
+    margin-bottom:5px;
+}
+
+.meanings li span:first-child{
+    width:62px;
+    vertical-align: top;
+    padding-top:5px;
+}
+
+
 .meanings button, h3 button{
     border:solid 1px #a0cb00; 
     background:#fff;

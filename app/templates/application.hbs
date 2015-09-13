@@ -28,15 +28,25 @@
                 {{#each meaning in selectedWord.meanings}}
                     <li>
                         {{#if meaning.isEditMode}}
-                            <button {{action 'saveMeaning' meaning}}>✓</button>
-                            <button {{action 'cancelMeaning' meaning}}>✕</button>
-                            {{input value=meaning.text placeholder="Word"}}
-                            {{input value=meaning.order placeholder="Order"}}
+                            <span>
+                                <button {{action 'saveMeaning' meaning}}>✓</button>
+                                <button {{action 'cancelMeaning' meaning}}>✕</button>
+                            </span>
+                            <span>
+                                {{input value=meaning.text placeholder="Word"}}
+                                {{input value=meaning.order placeholder="Order"}}
+
+                                {{view "select" content=words value=selectedMeaningWord optionValuePath="content.id" optionLabelPath="content.word"}}
+                            </span>
                         {{else}}
-                            <button {{action 'editMeaning' meaning}}>✎</button>
-                            <button {{action 'deleteMeaning' meaning}}>⌫</button>
-                            {{meaning.text}}
-                            {{meaning.order}}
+                            <span>
+                                <button {{action 'editMeaning' meaning}}>✎</button>
+                                <button {{action 'deleteMeaning' meaning}}>⌫</button>
+                            </span>
+                            <span>
+                                {{meaning.text}}
+                                {{meaning.order}}
+                            </span>
                         {{/if}}
                     </li>
                 {{/each}}
