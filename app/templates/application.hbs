@@ -30,8 +30,8 @@
                         {{#if meaning.isEditMode}}
                             <button {{action 'saveMeaning' meaning}}>✓</button>
                             <button {{action 'cancelMeaning' meaning}}>✕</button>
-                            {{input value=meaning.text}}
-                            {{input value=meaning.order}}
+                            {{input value=meaning.text placeholder="Word"}}
+                            {{input value=meaning.order placeholder="Order"}}
                         {{else}}
                             <button {{action 'editMeaning' meaning}}>✎</button>
                             <button {{action 'deleteMeaning' meaning}}>⌫</button>
