@@ -29,8 +29,8 @@ export default Ember.Service.extend({
     },
     undo: function(record){
         var model = this.get('stack').popObject();
-        console.log('model', model, this.get('stack'));
-        if(model) {
+        console.trace('model', Ember.isPresent(model), this.get('stack.length'));
+        if(Ember.isPresent(model)) {
             model.restore();
             return true;
         }

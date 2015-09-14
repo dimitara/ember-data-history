@@ -49,7 +49,8 @@ export default Ember.Controller.extend({
         saveMeaning: function(meaning){
             //meaning.get('word.meanings').removeObject(meaning);
             //this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject')
-            if(this.get('selectedMeaningWord') !== meaning.get('word')){
+
+            if(this.get('selectedMeaningWord') !== meaning.get('word.id')){
                 this.send('deleteMeaning', meaning);
                 var word = this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject');
 

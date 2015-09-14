@@ -48,6 +48,8 @@ export default Ember.Mixin.create({
             return;
         }
         
+        console.trace('prop change', this.get('id'), this.constructor.typeKey, key);
+
         if(changedAttr[key]){ 
             var groupName = meta.options && meta.options.group;
             var stackable = meta.options && meta.options.stackable;
@@ -88,7 +90,7 @@ export default Ember.Mixin.create({
             var items = relation.get('content').filter(r => {
                 return r.get('isNew') && !r.get('isTracked');
             });
-
+            
             if(items.length > 0){
                 this.saveState({
                     key: key,
@@ -265,6 +267,7 @@ export default Ember.Mixin.create({
         }
         this.get('history').push(this);
         this.get('states').pushObject(state);
+        
         console.error('States', this.get('states'));
         console.error('History', this.get('history'));
     },
