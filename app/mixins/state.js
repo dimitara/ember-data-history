@@ -19,13 +19,13 @@ export default Ember.Mixin.create({
 
         this.eachRelationship((name, descriptor) => {
             if(descriptor.options.stateless === true) return ;
-
+            
             this.addObserver(name, () => {
                 this.propObserver(name, descriptor);
             });
             
-            if(descriptor.kind === 'hasMany' && Ember.isPresent(this.get(name).get('content'))){
-                this.get(name).get('content').forEach(r => {
+            if(descriptor.kind === 'hasMany' && Ember.isPresent(this.get(name))){
+                this.get(name).forEach(r => {
                     if(r.track) {
                         r.track();
                     }
@@ -138,9 +138,7 @@ export default Ember.Mixin.create({
             model: this
         });
 
-        //this.get('states').pushObject();
-
-        console.log('states', this.get('states'));
+        console.trace('remove record state', this.get('states'));
     },
 
     updateLastGroup: function(state, groupName){
@@ -274,7 +272,7 @@ export default Ember.Mixin.create({
     restore: function(states){
         var states = states || this.get('states');
         var state = states.popObject();
-        console.log('www', state);
+        
         if (!state) {
             return false;
         }
@@ -286,7 +284,7 @@ export default Ember.Mixin.create({
         }else {
             this.restoreFromState(state);
         }
-        console.log('After Restore', states);
+        
         return true;
     },
 
@@ -307,7 +305,6 @@ export default Ember.Mixin.create({
         }
         else{
             if(state.type === 'remove:hasMany'){
-                console.log('www');
                 state.change.set('isRemoved', false);
                 state.change.set('isAdded', true);
                 this.get(state.key).addObject(state.change);

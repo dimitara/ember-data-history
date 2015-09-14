@@ -5,7 +5,8 @@ export default Ember.Controller.extend({
     words: null,
     init: function(){
         this.store.find('word').then(words => {
-            this.set('words', words);
+            this.set('words', this.get('model').get('words'));
+            this.get('history').init(this.get('model'));
             this.send('select', words.get('firstObject'));
         });
     },
@@ -16,7 +17,6 @@ export default Ember.Controller.extend({
             this.set('selectedMeaningWord', word.get('id'));
             if(word){
                 word.set('isSelected', true);
-                this.get('history').init(word);
             }
         },
         addMeaning: function(){
@@ -50,14 +50,17 @@ export default Ember.Controller.extend({
             //meaning.get('word.meanings').removeObject(meaning);
             //this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject')
             if(this.get('selectedMeaningWord') !== meaning.get('word')){
-                this.store.createRecord('meaning', {
+                this.send('deleteMeaning', meaning);
+                var word = this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject');
+
+                var newMeaning = this.store.createRecord('meaning', {
                     id: null,
                     text: meaning.get('text'),
-                    word: this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject'),
+                    word: word,
                     isEditMode: false
                 });
-                
-                this.send('deleteMeaning', meaning);
+
+                word.get('meanings').pushObject(newMeaning);
             }
             
             meaning.set('isEditMode', false);

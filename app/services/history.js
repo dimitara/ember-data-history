@@ -17,7 +17,7 @@ export default Ember.Service.extend({
         this.set('stack', A([]));
     },
     push: function(model){
-        console.log('push stack', model);
+        console.trace('push stack', this.get('stack'));
         this.get('stack').pushObject(model);
     },
     undoAll: function(){
@@ -29,7 +29,7 @@ export default Ember.Service.extend({
     },
     undo: function(record){
         var model = this.get('stack').popObject();
-        console.log('model', model);
+        console.log('model', model, this.get('stack'));
         if(model) {
             model.restore();
             return true;
