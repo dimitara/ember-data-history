@@ -28,6 +28,8 @@ export default Ember.Controller.extend({
             });
         },
         editMeaning: function(meaning){
+            this.set('selectedMeaningWord', this.get('selectedWord.id'));
+
             meaning.set('isEditMode', true);
         },
         deleteMeaning: function(meaning){
@@ -47,13 +49,15 @@ export default Ember.Controller.extend({
             this.get('selectedWord').set('isEditMode', false);
         },
         saveMeaning: function(meaning){
-            //meaning.get('word.meanings').removeObject(meaning);
-            //this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject')
-
             if(this.get('selectedMeaningWord') !== meaning.get('word.id')){
+                //if you want to reuse the current object
                 this.send('deleteMeaning', meaning);
                 var word = this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject');
-
+                meaning.set('word', word);
+                word.get('meanings').pushObject(meaning);
+                
+                /*
+                //if you want to remove the whole meaning and create a new one
                 var newMeaning = this.store.createRecord('meaning', {
                     id: null,
                     text: meaning.get('text'),
@@ -62,9 +66,11 @@ export default Ember.Controller.extend({
                 });
 
                 word.get('meanings').pushObject(newMeaning);
+                */
             }
             
             meaning.set('isEditMode', false);
+            this.set('selectedMeaningWord', this.get('selectedWord.id'));
         },
         cancelMeaning: function(meaning){
             this.get('history').undo(meaning);

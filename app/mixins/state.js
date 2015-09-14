@@ -32,11 +32,14 @@ export default Ember.Mixin.create({
                 });
             }
 
+            /*
+            //this will never execute since belongsTo is not trackable through
             if(descriptor.kind === 'belongsTo'){
                 if(this.get(name).track) {
                     this.get(name).track();
                 }
             }
+            */
         });
     },
 
@@ -90,7 +93,7 @@ export default Ember.Mixin.create({
             var items = relation.get('content').filter(r => {
                 return r.get('isNew') && !r.get('isTracked');
             });
-            
+
             if(items.length > 0){
                 this.saveState({
                     key: key,
