@@ -146,6 +146,20 @@ export default Ember.Mixin.create({
         console.trace('remove record state', this.get('states'));
     },
 
+    addRecord: function(record){
+        record.set('isRemoved', false);
+        this.get(record.constructor.typeKey + 's').pushObject(record);
+
+        this.saveState({
+            key: record.constructor.typeKey + 's',
+            type: 'hasMany',
+            change: record,
+            model: this
+        });
+
+        console.trace('add record state', this.get('states'));
+    },
+
     updateLastGroup: function(state, groupName){
         var key = state.key;
         var prevGroup = this.getPrevState(groupName);

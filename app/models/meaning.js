@@ -14,10 +14,11 @@ var Meaning = DS.Model.extend(state, {
     }),
     modified: DS.attr('date'),
     meta: DS.attr('string'),
-
+    /*
     word: DS.belongsTo('word', {
         stateless: true
-    })  
+    })
+    */  
 });
 
 Meaning.reopenClass({

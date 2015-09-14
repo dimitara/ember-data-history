@@ -53,8 +53,8 @@ export default Ember.Controller.extend({
                 //if you want to reuse the current object
                 this.send('deleteMeaning', meaning);
                 var word = this.get('words').filterBy('id', this.get('selectedMeaningWord')).get('firstObject');
-                meaning.set('word', word);
-                word.get('meanings').pushObject(meaning);
+                //meaning.set('word', word);
+                word.addRecord(meaning);
                 
                 /*
                 //if you want to remove the whole meaning and create a new one
